@@ -1,0 +1,9 @@
+
+//ul[starts-with(@class, 'col subnavigation__left_side_block_ul')]
+
+//div[@class='page_listing'][1]//li[@class='next'][last()]
+
+<link rel="prev" href="https://www.citilink.ru/catalog/power_tools_and_garden_equipments/lazernye_niveliry/?available=1&amp;status=55395790&amp;p=3">
+<link rel="next" href="https://www.citilink.ru/catalog/power_tools_and_garden_equipments/lazernye_niveliry/?available=1&amp;status=55395790&amp;p=4">
+//div[@class='page_listing'][1]//link[@rel='next']
+

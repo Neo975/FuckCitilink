@@ -1,0 +1,10 @@
+/.idea/
+/.idea/libraries/
+/compiler_output/
+/Crawler_Citilink.iml
+/target/
+/database/
+/console_out.txt
+/logs/
+/docs/ImageCrawler/
+/docs/ImageDatabase/

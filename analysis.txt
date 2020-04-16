@@ -1,0 +1,18 @@
+INFO: HHH000397: Using ASTQueryTranslatorFactory
+���. 28, 2020 10:05:31 PM org.hibernate.engine.jdbc.connections.internal.DriverManagerConnectionProviderImpl stop
+INFO: HHH10001008: Cleaning up connection pool [jdbc:h2:database/./test]
+Stage: https://www.citilink.ru/catalog/computers_and_notebooks/rashodnye_materialy/
+Stage: https://www.citilink.ru/catalog/computers_and_notebooks/monitors_and_office/cartridges/
+
+Exception: java.lang.OutOfMemoryError thrown from the UncaughtExceptionHandler in thread "JS executor for com.gargoylesoftware.htmlunit.WebClient@5972d253"
+
+Exception: java.lang.OutOfMemoryError thrown from the UncaughtExceptionHandler in thread "JS executor for com.gargoylesoftware.htmlunit.WebClient@6d48e0e7"
+
+Exception: java.lang.OutOfMemoryError thrown from the UncaughtExceptionHandler in thread "JS executor for com.gargoylesoftware.htmlunit.WebClient@76848604"
+Exception in thread "main" java.lang.OutOfMemoryError: Java heap space
+Disconnected from the target VM, address: '127.0.0.1:49229', transport: 'socket'
+
+Process finished with exit code 1
+
+
+Не найдено товарных позиций для URL: https://www.citilink.ru/catalog/beauty_and_health/sredstva_gigieny/
