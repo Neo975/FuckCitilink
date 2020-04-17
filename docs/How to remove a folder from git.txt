@@ -1,7 +1,0 @@
-Задача: убрать содержимое каталога docs из репозитория git.
-Добавляем /docs/ в .gitignore
-git checkout master -- .gitignore
-Убираем все файлы в docs из кэша git
-git rm --cached -r docs
-
-Коммит изменений

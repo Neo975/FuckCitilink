@@ -22,7 +22,7 @@
         </encoder>
     </appender>
 
-    <logger name="com.hubber.MainCitilink2HtmlUnit" level="trace"/>
+    <!--logger name="com.hubber.MainCitilink2HtmlUnit" level="trace"/-->
     <logger name="com.hubber.MainCitilink" level="trace"/>
     <logger name="com.hubber.DBUtils" level="debug"/>
 

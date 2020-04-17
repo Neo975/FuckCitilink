@@ -9,6 +9,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -152,17 +156,47 @@ public class MainCitilink {
     }
 
 //Проверка на капчу и ее ручной ввод при необходимости
-    private static void checkForCaptcha(String url, WebDriver extDriver) {
+    private static int checkForCaptcha(String url, WebDriver extDriver) {
         logger.trace("Method checkForCaptcha(), entry point ->");
         extDriver.get(url);
         List<WebElement> testList = extDriver.findElements(By.xpath("//div[@class='js--subcategory-product-item subcategory-product-item product_data__gtm-js  product_data__pageevents-js ddl_product']"));
 
-        if (testList != null) {
+        if (testList.size() > 0) {
+            //На странице есть Web-элементы, капчи точно нет
             captchaBypassCounter = 0;
             logger.debug("Method checkForCaptcha(), captcha bypassed");
             logger.trace("Method checkForCaptcha(), exit point <-");
+            return 0;
+        }
 
-            return;
+        //Web-элементов нет, но, возможно, товары просто отсутствуют. Проверка на это.
+        try {
+            URL testURL = new URL(url);
+            HttpURLConnection urlConnection = (HttpURLConnection) testURL.openConnection();
+            urlConnection.setRequestMethod("GET");
+            urlConnection.connect();
+            int responseCode = urlConnection.getResponseCode();
+
+            if (responseCode != 429) {
+                logger.debug("Method checkForCaptcha(), responseCode != 429");
+                logger.trace("Method checkForCaptcha(), exit point <-");
+                return 0;
+            }
+        } catch (IOException e) {
+            logger.error("Method checkForCaptcha(), IOException occurred with HttpURLConnection");
+        }
+
+        //Citilink включил антибот-режим. Проверка: капча или 429-заглушка.
+        WebElement captchaInput = extDriver.findElement(By.xpath("//input[@name='captcha']"));
+        if (captchaInput == null) {
+            //429-заглушка
+            logger.debug("Method checkForCaptcha(), captchaInput is null");
+            try {
+                Thread.sleep(60000);
+            } catch (InterruptedException e) {
+                logger.error("Method checkForCaptcha(), InterruptedException occurred");
+            }
+
         }
 
         //Требуется ввод капчи
@@ -175,36 +209,26 @@ public class MainCitilink {
         driver.get(url);
 
         try {
-            if (captchaBypassCounter < 3) {
-                captchaBypassCounter++;
-                Thread.sleep(5000);
-                WebElement captchaInput = driver.findElement(By.xpath("//input[@name='captcha']"));
-                WebElement captchaButton = driver.findElement(By.xpath("//button[@type='submit']"));
-                String captchaValue = "some text";
-                captchaInput.sendKeys(captchaValue);
-                captchaButton.click();
-                logger.debug("Method checkForCaptcha(), captchaBypassCounter < 3");
-            } else if (captchaBypassCounter >= 3) {
-                captchaBypassCounter++;
-                Thread.sleep(100000);
-                WebElement captchaInput = driver.findElement(By.xpath("//input[@name='captcha']"));
-                WebElement captchaButton = driver.findElement(By.xpath("//button[@type='submit']"));
-                String captchaValue = "f";
-                captchaInput.sendKeys(captchaValue);
-                captchaButton.click();
-                logger.debug("Method checkForCaptcha(), captchaBypassCounter >= 3");
-            }
-        } catch (Exception e) {
-            logger.error("Method checkForCaptcha(), exception occurred", e);
-            try {
-                Thread.sleep(180000);
-            } catch (InterruptedException interruptedException) {
-
-            }
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            logger.error("Method checkForCaptcha(), InterruptedException occurred");
         }
+        WebElement captchaButton = driver.findElement(By.xpath("//button[@type='submit']"));
+        String captchaValue = "f";
+        captchaInput.sendKeys(captchaValue);
+        captchaButton.click();
+        logger.debug("Method checkForCaptcha(), submitting captcha text");
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            logger.error("Method checkForCaptcha(), InterruptedException occurred");
+        }
+
         driver.close();
         driver.quit();
         logger.trace("Method checkForCaptcha(), exit point <-");
+
+        return checkForCaptcha(url, extDriver);
     }
 
 //Установка свойств системы для ChromeDriver

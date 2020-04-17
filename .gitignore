@@ -6,5 +6,5 @@
 /database/
 /console_out.txt
 /logs/
-/docs/ImageCrawler/
-/docs/ImageDatabase/
+/deployment/ImageCrawler/
+/deployment/ImageDatabase/
