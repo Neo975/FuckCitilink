@@ -20,18 +20,19 @@ import java.util.concurrent.TimeUnit;
 
 public class MainCitilink {
     private static final Logger logger = LoggerFactory.getLogger(MainCitilink.class);
-    private static String WEBDRIVER_LOCATION = ".//drivers//chromedriver.exe";
+    private static String WEBDRIVER_LOCATION = ".//drivers//chromedriver";
     private static int captchaBypassCounter = 0;
 
     public static void main(String[] args) {
+        System.out.println("Crawler Citilink DB 0.4.1");
         logger.trace("Method main(), entry point ->");
         setSystemPropertiesForSelenium();
 
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless");
-//        options.addArguments("--disable-gpu");
+        options.addArguments("--disable-gpu");
 //        options.addArguments("window-size=800,600");
-//        options.addArguments("--disable-dev-shm-usage");
+        options.addArguments("--disable-dev-shm-usage");
 
 /*
         options.addArguments("start-maximized"); // https://stackoverflow.com/a/26283818/1689770
@@ -45,7 +46,7 @@ public class MainCitilink {
 */
 
         WebDriver driver = new ChromeDriver(options);
-//        driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
+        driver.manage().timeouts().implicitlyWait(1, TimeUnit.SECONDS);
 
         test2(driver);
 
@@ -91,8 +92,8 @@ public class MainCitilink {
         List<String> res = new ArrayList<>();
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless");
-//        options.addArguments("--disable-gpu");
-//        options.addArguments("--disable-dev-shm-usage");
+        options.addArguments("--disable-gpu");
+        options.addArguments("--disable-dev-shm-usage");
 
         WebDriver driver = new ChromeDriver(options);
         driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
@@ -164,11 +165,22 @@ public class MainCitilink {
         if (testList.size() > 0) {
             //На странице есть Web-элементы, капчи точно нет
             captchaBypassCounter = 0;
-            logger.debug("Method checkForCaptcha(), captcha bypassed");
+            logger.trace("Method checkForCaptcha(), there is no captcha on page");
             logger.trace("Method checkForCaptcha(), exit point <-");
             return 0;
         }
 
+        //Проверка на заглушку - "неверный URL"
+        List<WebElement> dummyList = extDriver.findElements(By.xpath("//div[@class='logo']/a[@class='logo__inner_nonunderline']/img[@class='screen']"));
+        if (dummyList.size() > 0) {
+            //Заглушка ошибка 404 "К сожалению указанная страница не найдена"
+            captchaBypassCounter = 0;
+            logger.debug("Method checkForCaptcha(), dummy URL 404");
+            logger.trace("Method checkForCaptcha(), exit point <-");
+            return 0;
+        }
+
+        int t = 44;
         //Web-элементов нет, но, возможно, товары просто отсутствуют. Проверка на это.
         try {
             URL testURL = new URL(url);
@@ -187,6 +199,7 @@ public class MainCitilink {
         }
 
         //Citilink включил антибот-режим. Проверка: капча или 429-заглушка.
+/*
         WebElement captchaInput = extDriver.findElement(By.xpath("//input[@name='captcha']"));
         if (captchaInput == null) {
             //429-заглушка
@@ -198,12 +211,12 @@ public class MainCitilink {
             }
 
         }
-
+*/
         //Требуется ввод капчи
         ChromeOptions options = new ChromeOptions();
-//        options.addArguments("--headless");
-//        options.addArguments("--disable-gpu");
-//        options.addArguments("--disable-dev-shm-usage");
+        options.addArguments("--headless");
+        options.addArguments("--disable-gpu");
+        options.addArguments("--disable-dev-shm-usage");
         WebDriver driver = new ChromeDriver(options);
         driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
         driver.get(url);
@@ -213,10 +226,14 @@ public class MainCitilink {
         } catch (InterruptedException e) {
             logger.error("Method checkForCaptcha(), InterruptedException occurred");
         }
-        WebElement captchaButton = driver.findElement(By.xpath("//button[@type='submit']"));
+        List<WebElement> captchaInputList = driver.findElements(By.xpath("//input[@name='captcha']"));
+        List<WebElement> captchaButtonList = driver.findElements(By.xpath("//button[@type='submit']"));
+        if (captchaInputList.size() == 0 || captchaButtonList.size() == 0) {
+            return checkForCaptcha(url, extDriver);
+        }
         String captchaValue = "f";
-        captchaInput.sendKeys(captchaValue);
-        captchaButton.click();
+        captchaInputList.get(0).sendKeys(captchaValue);
+        captchaButtonList.get(0).click();
         logger.debug("Method checkForCaptcha(), submitting captcha text");
         try {
             Thread.sleep(3000);
@@ -235,7 +252,7 @@ public class MainCitilink {
     private static void setSystemPropertiesForSelenium() {
         logger.trace("Method setSystemPropertiesForSelenium(), entry point ->");
         //Вывод логов Selenium в файл и отключение вывода встандартные потоки вывода и ошибок
-        System.setProperty("webdriver.chrome.driver", ".//drivers//chromedriver.exe");
+        System.setProperty("webdriver.chrome.driver", WEBDRIVER_LOCATION);
         System.setProperty("webdriver.chrome.logfile", ".//logs//selenium.log");
 //        System.setProperty("webdriver.chrome.verboselogging", "false");
 //        System.setProperty("webdriver.chrome.silentOutput", "true");

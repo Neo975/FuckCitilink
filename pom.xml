@@ -144,7 +144,7 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
-                            <mainClass>com.hubber.MainCitilink2HtmlUnit</mainClass>
+                            <mainClass>com.hubber.MainCitilink</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
